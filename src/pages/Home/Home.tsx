@@ -1,45 +1,48 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { PhoneIcon } from '@heroicons/react/24/solid';
 import { VideoCameraIcon } from '@heroicons/react/20/solid';
-import ContactService from '../../services/Contact';
-import { ContactData } from '../../models/contact';
 import { capitalize } from '../../utils/capitalizeWords';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { getAllContacts } from '../../store/contacts/contactActions';
 
 const Home = () => {
-  const [contactList, setContactList] = useState({});
+  const dispatch = useAppDispatch();
+  const allContacts = useAppSelector((state) => state.allContacts);
+
+  const contactList = useMemo(() => {
+    const grouppedContactList = allContacts.reduce((acc, contact) => {
+      const { firstName } = contact;
+      const firstLetter = firstName[0].toUpperCase();
+
+      if (!acc[firstLetter]) {
+        acc[firstLetter] = [];
+      }
+
+      acc[firstLetter].push({
+        ...contact,
+        firstName: capitalize(contact.firstName),
+        lastName: capitalize(contact.lastName),
+      });
+
+      return acc;
+    }, {});
+
+    return grouppedContactList;
+  }, [allContacts]);
 
   useEffect(() => {
     const fetchAllContacts = async () => {
       try {
-        const result: ContactData[] = await ContactService.getAllContacts();
-
-        const grouppedContactList = result.reduce((acc, contact) => {
-          const { firstName } = contact;
-          const firstLetter = firstName[0].toUpperCase();
-
-          if (!acc[firstLetter]) {
-            acc[firstLetter] = [];
-          }
-
-          acc[firstLetter].push({
-            ...contact,
-            firstName: capitalize(contact.firstName),
-            lastName: capitalize(contact.lastName),
-          });
-
-          return acc;
-        }, {});
-
-        setContactList(grouppedContactList);
+        await dispatch(getAllContacts());
       } catch (e) {
         throw new Error(e);
       }
     };
 
     fetchAllContacts();
-  }, []);
+  }, [dispatch]);
 
   return (
     <div>

@@ -1,27 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronLeftIcon } from '@heroicons/react/24/solid';
-import ContactService from '../../services/Contact';
-import { ContactData } from '../../models/contact';
 import { capitalize } from '../../utils/capitalizeWords';
+import { getContactById } from '../../store/contacts/contactActions';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 
 const ContactDetails = () => {
+  const dispatch = useAppDispatch();
   const { id } = useParams();
-
-  const [contactData, setContactData] = useState<ContactData>();
+  const contactDetail = useAppSelector((state) => state.contactDetail);
 
   useEffect(() => {
     const fetchContactById = async (contactId: string) => {
       try {
-        const response = await ContactService.getContactById(contactId);
-        setContactData(response);
+        await dispatch(getContactById(contactId));
       } catch (e) {
         throw new Error(e);
       }
     };
 
     fetchContactById(id);
-  }, [id]);
+  }, [dispatch, id]);
 
   return (
     <div>
@@ -44,14 +43,22 @@ const ContactDetails = () => {
         <div className="flex flex-col items-center">
           {/* Profile Pic */}
           <div className="w-24 h-24 rounded-full bg-gray-200">
-            <img className="w-24 h-24 rounded-full object-contain" src={contactData?.photo} alt="Profile Pic" />
+            <img
+              className="w-24 h-24 rounded-full object-contain"
+              src={contactDetail?.photo}
+              alt="Profile Pic"
+            />
           </div>
 
           <div className="flex flex-col justify-center">
             <h1 className="text-2xl font-semibold">
-              {`${capitalize(contactData?.firstName)} ${capitalize(contactData?.lastName)}`}
+              {`${capitalize(contactDetail?.firstName)} ${capitalize(
+                contactDetail?.lastName
+              )}`}
             </h1>
-            <h3 className="text-lg text-gray-600 self-center">{contactData?.age} Y.O</h3>
+            <h3 className="text-lg text-gray-600 self-center">
+              {contactDetail?.age} Y.O
+            </h3>
           </div>
         </div>
       </div>
