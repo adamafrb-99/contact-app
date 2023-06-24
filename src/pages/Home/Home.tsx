@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { PlusIcon } from '@heroicons/react/24/outline';
 import { PhoneIcon } from '@heroicons/react/24/solid';
 import { VideoCameraIcon } from '@heroicons/react/20/solid';
 import { capitalize } from '../../utils/capitalizeWords';
@@ -12,14 +11,7 @@ import {
 } from '../../store/contacts/contactActions';
 import ContactForm from '../../components/ContactForm';
 import { ContactData, ContactFormData } from '../../models/contact';
-
-const openContactForm = () => {
-  if (document) {
-    (
-      document.getElementById('contact_form_modal') as HTMLFormElement
-    ).showModal();
-  }
-};
+import Header from './components/Header';
 
 const Home = () => {
   const dispatch = useAppDispatch();
@@ -75,19 +67,7 @@ const Home = () => {
 
   return (
     <div>
-      {/* Navbar */}
-      <nav className="p-2">
-        <ul className="flex items-center justify-between">
-          <li>
-            <h1 className="text-2xl font-semibold">My Contacts</h1>
-          </li>
-          <li>
-            <button className="btn" onClick={openContactForm}>
-              <PlusIcon className="h-6 w-6 font-semibold" />
-            </button>
-          </li>
-        </ul>
-      </nav>
+      <Header />
 
       {Object.keys(contactList)
         .sort()
@@ -108,10 +88,10 @@ const Home = () => {
                 >
                   <p className="font-semibold">{`${data.firstName} ${data.lastName}`}</p>
                   <div className="flex space-x-2">
-                    <div className="p-1.5 rounded-full h-7 w-7 bg-gray-300 dark:bg-slate-700">
+                    <div className="smallAdornmentContainer">
                       <PhoneIcon className="w-full h-full text-green-600" />
                     </div>
-                    <div className="p-1.5 rounded-full h-7 w-7 bg-gray-300 dark:bg-slate-700">
+                    <div className="smallAdornmentContainer">
                       <VideoCameraIcon className="w-full h-full text-blue-500" />
                     </div>
                   </div>

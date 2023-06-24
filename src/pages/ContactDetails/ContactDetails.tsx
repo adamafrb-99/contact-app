@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
-  ChevronLeftIcon,
   PhoneIcon,
   ChatBubbleOvalLeftIcon,
   EnvelopeIcon,
@@ -17,14 +16,8 @@ import {
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import ContactForm from '../../components/ContactForm';
 import { ContactData, ContactFormData } from '../../models/contact';
-
-const openContactForm = () => {
-  if (document) {
-    (
-      document.getElementById('contact_form_modal') as HTMLFormElement
-    ).showModal();
-  }
-};
+import CommunicationButton from './components/CommunicationButton';
+import Header from './components/Header';
 
 const ContactDetails = () => {
   const dispatch = useAppDispatch();
@@ -93,22 +86,7 @@ const ContactDetails = () => {
 
   return (
     <div>
-      {/* Navbar */}
-      <nav className="mb-5 p-2">
-        <ul className="flex items-center justify-between font-semibold">
-          <li>
-            <Link to="/" className="flex items-center space-x-1">
-              <ChevronLeftIcon className="h-6 w-6" />
-              <p className="text-lg">Contacts</p>
-            </Link>
-          </li>
-          <li>
-            <button className="text-lg" onClick={openContactForm}>
-              Edit
-            </button>
-          </li>
-        </ul>
-      </nav>
+      <Header />
 
       <div>
         <div className="flex flex-col items-center">
@@ -121,6 +99,7 @@ const ContactDetails = () => {
             />
           </div>
 
+          {/* Name & Age panel */}
           <div className="mb-5 flex flex-col justify-center">
             <h1 className="text-2xl font-semibold">
               {`${capitalize(contactDetail?.firstName)} ${capitalize(
@@ -130,31 +109,24 @@ const ContactDetails = () => {
             <h3 className="text-lg self-center">{contactDetail?.age} Y.O</h3>
           </div>
 
+          {/* Communication buttons */}
           <div className="mb-10 space-x-1.5">
-            <button className="btn btn-primary btn-outline py-1 h-full">
-              <div className="flex flex-col items-center">
-                <ChatBubbleOvalLeftIcon className="w-6 h-6" />
-                <p className="lowercase font-light">Message</p>
-              </div>
-            </button>
-            <button className="btn btn-primary btn-outline py-1 h-full">
-              <div className="flex flex-col items-center">
-                <PhoneIcon className="w-6 h-6" />
-                <p className="lowercase font-light">Mobile</p>
-              </div>
-            </button>
-            <button className="btn btn-primary btn-outline py-1 h-full">
-              <div className="flex flex-col items-center">
-                <VideoCameraIcon className="w-6 h-6" />
-                <p className="lowercase font-light">FaceTime</p>
-              </div>
-            </button>
-            <button className="btn btn-primary btn-outline py-1 h-full">
-              <div className="flex flex-col items-center">
-                <EnvelopeIcon className="w-6 h-6" />
-                <p className="lowercase font-light">Mail</p>
-              </div>
-            </button>
+            <CommunicationButton
+              icon={<ChatBubbleOvalLeftIcon className="w-6 h-6" />}
+              text="message"
+            />
+            <CommunicationButton
+              icon={<PhoneIcon className="w-6 h-6" />}
+              text="mobile"
+            />
+            <CommunicationButton
+              icon={<VideoCameraIcon className="w-6 h-6" />}
+              text="facetime"
+            />
+            <CommunicationButton
+              icon={<EnvelopeIcon className="w-6 h-6" />}
+              text="mail"
+            />
           </div>
 
           <button

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { ApiRequestStatus } from '../../models/common';
-import { getAllContacts, getContactById, deleteContact } from './contactActions';
+import { getAllContacts, getContactById } from './contactActions';
 import { ContactData } from '../../models/contact';
 
 const initialAllContacts: ContactData[] = [];
