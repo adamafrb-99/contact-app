@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import App from './App.tsx';
 import store from './store';
+import { Toaster } from 'react-hot-toast';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
@@ -11,6 +12,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <Provider store={store}>
       <BrowserRouter>
         <App />
+        <Toaster />
       </BrowserRouter>
     </Provider>
   </React.StrictMode>

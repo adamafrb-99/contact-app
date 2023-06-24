@@ -1,26 +1,69 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronLeftIcon } from '@heroicons/react/24/solid';
 import { capitalize } from '../../utils/capitalizeWords';
 import { getContactById } from '../../store/contacts/contactActions';
 import { useAppDispatch, useAppSelector } from '../../hooks';
+import ContactForm from '../../components/ContactForm';
+import { ContactData, ContactFormData } from '../../models/contact';
+import ContactService from '../../services/Contact';
+
+const openContactForm = () => {
+  if (document) {
+    (
+      document.getElementById('contact_form_modal') as HTMLFormElement
+    ).showModal();
+  }
+};
 
 const ContactDetails = () => {
   const dispatch = useAppDispatch();
   const { id } = useParams();
-  const contactDetail = useAppSelector((state) => state.contactDetail);
+  const contactDetailRedux = useAppSelector((state) => state.contactDetail);
 
-  useEffect(() => {
-    const fetchContactById = async (contactId: string) => {
+  const [contactDetail, setContactDetail] = useState<ContactData>();
+
+  const fetchContactById = useCallback(
+    async () => {
       try {
-        await dispatch(getContactById(contactId));
+        await dispatch(getContactById(id)).unwrap();
       } catch (e) {
         throw new Error(e);
       }
-    };
+    },
+    [dispatch, id]
+  );
 
-    fetchContactById(id);
-  }, [dispatch, id]);
+  const updateContact = async (data: ContactFormData) => {
+    try {
+      const params = {
+        firstName: data.firstName || contactDetail.firstName,
+        lastName: data.lastName || contactDetail.lastName,
+        age: data.age || contactDetail.age,
+        photo: data.photo || contactDetail.photo,
+      }
+
+      await ContactService.editContact(id, params);
+      await fetchContactById();
+
+      toast.success('Contact successfully edited!', {
+        position: 'top-right',
+      });
+    } catch (e) {
+      toast.error(e.message, {
+        position: 'top-right',
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchContactById();
+  }, [fetchContactById]);
+
+  useEffect(() => {
+    setContactDetail(contactDetailRedux);
+  }, [contactDetailRedux]);
 
   return (
     <div>
@@ -34,7 +77,9 @@ const ContactDetails = () => {
             </Link>
           </li>
           <li>
-            <p className="text-lg">Edit</p>
+            <button className="text-lg" onClick={openContactForm}>
+              Edit
+            </button>
           </li>
         </ul>
       </nav>
@@ -62,6 +107,12 @@ const ContactDetails = () => {
           </div>
         </div>
       </div>
+
+      <ContactForm
+        currentData={contactDetail}
+        isEdit
+        onFormSubmit={updateContact}
+      />
     </div>
   );
 };

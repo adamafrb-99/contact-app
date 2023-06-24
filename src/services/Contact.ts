@@ -1,3 +1,4 @@
+import { ContactFormData } from '../models/contact';
 import Service from './Service';
 
 class ContactService extends Service {
@@ -15,6 +16,16 @@ class ContactService extends Service {
 
     return response.data;
   };
+
+  createContact = async (params: ContactFormData) => {
+    const response = await this.http.post('', params);
+    return response;
+  }
+
+  editContact = async (id: string, params: ContactFormData) => {
+    const response = await this.http.put(`/${id}`, params);
+    return response;
+  }
 }
 
 export default new ContactService();
