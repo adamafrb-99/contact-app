@@ -20,12 +20,17 @@ class ContactService extends Service {
   createContact = async (params: ContactFormData) => {
     const response = await this.http.post('', params);
     return response;
-  }
+  };
 
   editContact = async (id: string, params: ContactFormData) => {
     const response = await this.http.put(`/${id}`, params);
     return response;
-  }
+  };
+
+  deleteContact = async (id: string) => {
+    const response = await this.http.delete(`/${id}`);
+    return response;
+  };
 }
 
 export default new ContactService();

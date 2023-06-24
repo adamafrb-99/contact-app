@@ -6,9 +6,11 @@ import { PhoneIcon } from '@heroicons/react/24/solid';
 import { VideoCameraIcon } from '@heroicons/react/20/solid';
 import { capitalize } from '../../utils/capitalizeWords';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { getAllContacts } from '../../store/contacts/contactActions';
+import {
+  createContact,
+  getAllContacts,
+} from '../../store/contacts/contactActions';
 import ContactForm from '../../components/ContactForm';
-import ContactService from '../../services/Contact';
 import { ContactData, ContactFormData } from '../../models/contact';
 
 const openContactForm = () => {
@@ -54,7 +56,7 @@ const Home = () => {
 
   const createNewContact = async (data: ContactFormData) => {
     try {
-      await ContactService.createContact(data);
+      await dispatch(createContact(data)).unwrap();
       await fetchAllContacts();
 
       toast.success('Contact successfully added!', {
