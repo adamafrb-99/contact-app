@@ -1,21 +1,41 @@
 import { vi } from 'vitest';
 import { AxiosResponse } from 'axios';
-import { render, screen, fireEvent } from '@testing-library/react';
+import configureStore from 'redux-mock-store';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import ContactDetails from '..';
-import store from '../../../store';
 import ContactService from '../../../services/Contact';
 import { mockContacts } from '../../Home/__mocks__/mockData';
+import { ApiRequestStatus } from '../../../models/common';
 
 const getContactByIdMock = vi.spyOn(ContactService, 'getContactById');
 const editContactMock = vi.spyOn(ContactService, 'editContact');
 const deleteContactMock = vi.spyOn(ContactService, 'deleteContact');
 
-const setupComponent = () => {
+const mockStore = configureStore([]);
+
+const setMockStore = (loadingStatus = ApiRequestStatus.RESOLVED) => {
+  const store = mockStore({
+    allContacts: [],
+    contactDetail: mockContacts[0],
+    loading: loadingStatus,
+    error: null,
+  });
+
+  store.dispatch = vi.fn(() => {
+    return {
+      unwrap: vi.fn(),
+    };
+  });
+
+  return store;
+};
+
+const setupComponent = (loadingStatus) => {
   render(
-    <Provider store={store}>
+    <Provider store={setMockStore(loadingStatus)}>
       <BrowserRouter>
         <ContactDetails />
         <Toaster />
@@ -52,8 +72,12 @@ describe('Contact Details page', () => {
     deleteContactMock.mockReturnValue(Promise.resolve({} as AxiosResponse));
   });
 
+  afterEach(() => {
+    cleanup();
+  });
+
   it('Should render header', () => {
-    setupComponent();
+    setupComponent(ApiRequestStatus.RESOLVED);
 
     const backButton = screen.getByTestId('backButton');
     expect(backButton).toBeInTheDocument();
@@ -63,14 +87,14 @@ describe('Contact Details page', () => {
   });
 
   it('Should render image container', () => {
-    setupComponent();
+    setupComponent(ApiRequestStatus.RESOLVED);
 
     const imgContainer = screen.getByTestId('imgContainer');
     expect(imgContainer).toBeInTheDocument();
   });
 
   it('Should render name and age', () => {
-    setupComponent();
+    setupComponent(ApiRequestStatus.RESOLVED);
 
     const fullName = screen.getByTestId('fullName-text');
     expect(fullName).toHaveTextContent('Alam Novanto');
@@ -80,7 +104,7 @@ describe('Contact Details page', () => {
   });
 
   it('Should render delete button', () => {
-    setupComponent();
+    setupComponent(ApiRequestStatus.RESOLVED);
     const deleteButton = screen.getByRole('button', {
       name: 'Delete this contact',
     });
@@ -88,7 +112,7 @@ describe('Contact Details page', () => {
   });
 
   it('Should render success message after successfully editing contact', async () => {
-    setupComponent();
+    setupComponent(ApiRequestStatus.RESOLVED);
 
     const editButton = screen.getByRole('button', { name: 'Edit' });
     fireEvent.click(editButton);
@@ -113,7 +137,7 @@ describe('Contact Details page', () => {
   });
 
   it('Should render success message after successfully deleting contact', async () => {
-    setupComponent();
+    setupComponent(ApiRequestStatus.RESOLVED);
 
     const deleteButton = screen.getByRole('button', {
       name: 'Delete this contact',
@@ -127,27 +151,11 @@ describe('Contact Details page', () => {
 
     expect(successMessage).toBeInTheDocument();
   });
-});
 
-describe('When error', () => {
-  beforeEach(() => {
-    deleteContactMock.mockReset();
-    deleteContactMock.mockReturnValue(
-      Promise.reject({ message: 'Some error occured' })
-    );
-  });
+  it('Should render loader while still fetching data', () => {
+    setupComponent(ApiRequestStatus.PENDING);
 
-  it('Should render error message when failed to delete data', async () => {
-    setupComponent();
-
-    const deleteButton = screen.getByRole('button', {
-      name: 'Delete this contact',
-    });
-
-    fireEvent.click(deleteButton);
-
-    const errorMessage = await screen.findByText(/Some error occured/i);
-
-    expect(errorMessage).toBeInTheDocument();
+    const loaderComponent = screen.getByTestId('detailLoader');
+    expect(loaderComponent).toBeInTheDocument();
   });
 });

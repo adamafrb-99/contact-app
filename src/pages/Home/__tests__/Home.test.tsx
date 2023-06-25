@@ -1,20 +1,40 @@
 import { vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import Home from '..';
-import store from '../../../store';
 import ContactService from '../../../services/Contact';
 import { mockContacts } from '../__mocks__/mockData';
 import { AxiosResponse } from 'axios';
+import { ApiRequestStatus } from '../../../models/common';
+
+const mockStore = configureStore([]);
+
+const setMockStore = (loadingStatus = ApiRequestStatus.RESOLVED) => {
+  const store = mockStore({
+    allContacts: mockContacts,
+    contactDetail: {},
+    loading: loadingStatus,
+    error: null,
+  });
+
+  store.dispatch = vi.fn(() => {
+    return {
+      unwrap: vi.fn(),
+    };
+  });
+
+  return store;
+};
 
 const getAllContactsMock = vi.spyOn(ContactService, 'getAllContacts');
 const createContactMock = vi.spyOn(ContactService, 'createContact');
 
-const setupComponent = () => {
+const setupComponent = (loadingStatus) => {
   render(
-    <Provider store={store}>
+    <Provider store={setMockStore(loadingStatus)}>
       <BrowserRouter>
         <Home />
         <Toaster />
@@ -33,14 +53,14 @@ describe('Home page unit test', () => {
   });
 
   it('Should render the header', () => {
-    setupComponent();
+    setupComponent(ApiRequestStatus.RESOLVED);
 
     const title = screen.getByText(/My Contacts/i);
     expect(title).toBeInTheDocument();
   });
 
   it('Should render the data of contacts', () => {
-    setupComponent();
+    setupComponent(ApiRequestStatus.RESOLVED);
 
     const initials = screen.getAllByTestId('alphabetDivider');
     expect(initials).toHaveLength(4);
@@ -51,7 +71,7 @@ describe('Home page unit test', () => {
   });
 
   it('Should open Create New Contact form when add button is clicked', async () => {
-    setupComponent();
+    setupComponent(ApiRequestStatus.RESOLVED);
 
     const createButton = screen.getByTestId('createContactBtn');
     expect(createButton).toBeInTheDocument();
@@ -72,7 +92,7 @@ describe('Home page unit test', () => {
       })),
     });
 
-    setupComponent();
+    setupComponent(ApiRequestStatus.RESOLVED);
 
     const createButton = screen.getByTestId('createContactBtn');
     fireEvent.click(createButton);
@@ -94,5 +114,12 @@ describe('Home page unit test', () => {
       /Contact successfully added!/i
     );
     expect(successMessage).toBeInTheDocument();
+  });
+
+  it('Show loading skeleton when still fetching data', () => {
+    setupComponent(ApiRequestStatus.PENDING);
+
+    const loaderComponent = screen.getByTestId('listLoader');
+    expect(loaderComponent).toBeInTheDocument();
   });
 });
