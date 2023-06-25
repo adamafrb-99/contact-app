@@ -10,6 +10,8 @@ export type ContactFormData = Omit<ContactData, 'id'>;
 
 export type ContactForm = {
   isEdit: boolean;
+  isOpen: boolean;
   currentData?: ContactData;
+  onClose: () => void;
   onFormSubmit: (data: ContactFormData) => void;
 };

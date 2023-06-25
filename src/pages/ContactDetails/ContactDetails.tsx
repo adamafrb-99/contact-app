@@ -25,6 +25,7 @@ const ContactDetails = () => {
   const { id } = useParams();
   const contactDetailRedux = useAppSelector((state) => state.contactDetail);
   const [contactDetail, setContactDetail] = useState<ContactData>();
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
 
   const fetchContactById = useCallback(async () => {
     try {
@@ -45,9 +46,7 @@ const ContactDetails = () => {
         photo: data.photo || contactDetail.photo,
       };
 
-      await dispatch(
-        updateContact({ id, data: { ...params, age: undefined } })
-      ).unwrap();
+      await dispatch(updateContact({ id, data: params })).unwrap();
       await fetchContactById();
 
       toast.success('Contact successfully edited!', {
@@ -86,12 +85,15 @@ const ContactDetails = () => {
 
   return (
     <div>
-      <Header />
+      <Header onEditButtonClick={() => setIsFormModalOpen(true)} />
 
       <div>
         <div className="flex flex-col items-center">
           {/* Profile Pic */}
-          <div className="w-24 h-24 rounded-full bg-gray-200 mb-3">
+          <div
+            data-testid="imgContainer"
+            className="w-24 h-24 rounded-full bg-gray-200 mb-3"
+          >
             <img
               className="w-24 h-24 rounded-full object-contain"
               src={contactDetail?.photo}
@@ -101,12 +103,14 @@ const ContactDetails = () => {
 
           {/* Name & Age panel */}
           <div className="mb-5 flex flex-col justify-center">
-            <h1 className="text-2xl font-semibold">
+            <h1 data-testid="fullName-text" className="text-2xl font-semibold">
               {`${capitalize(contactDetail?.firstName)} ${capitalize(
                 contactDetail?.lastName
               )}`}
             </h1>
-            <h3 className="text-lg self-center">{contactDetail?.age} Y.O</h3>
+            <h3 data-testid="age-text" className="text-lg self-center">
+              {contactDetail?.age} Y.O
+            </h3>
           </div>
 
           {/* Communication buttons */}
@@ -143,6 +147,8 @@ const ContactDetails = () => {
       <ContactForm
         currentData={contactDetail}
         isEdit
+        isOpen={isFormModalOpen}
+        onClose={() => setIsFormModalOpen(false)}
         onFormSubmit={handleUpdateContact}
       />
     </div>

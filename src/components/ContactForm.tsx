@@ -7,6 +7,8 @@ import {
 const ContactForm = ({
   currentData,
   isEdit,
+  isOpen,
+  onClose,
   onFormSubmit,
 }: ContactFormType) => {
   const {
@@ -23,36 +25,34 @@ const ContactForm = ({
 
   const closeForm = () => {
     reset();
-    if (document) {
-      (
-        document.getElementById('contact_form_modal') as HTMLFormElement
-      ).close();
-    }
+    onClose();
   };
 
   return (
     <dialog
+      open={isOpen}
       id="contact_form_modal"
-      className="modal modal-bottom sm:modal-middle"
+      className={`modal modal-bottom sm:modal-middle`}
     >
       <form
         onSubmit={handleSubmit(onSubmit)}
         method="dialog"
         className="modal-box"
       >
-        <h3 className="font-bold text-lg mb-3">
+        <h3 data-testid="formTitle" className="font-bold text-lg mb-3">
           {isEdit ? 'Edit Contact Detail' : 'Create New Contact'}
         </h3>
 
         <div className="space-y-2">
           <div className="form-control w-full">
-            <label className="label">
+            <label htmlFor="firstName" className="label">
               <span className="label-text">First Name</span>
             </label>
             <input
               {...register('firstName', {
                 required: isEdit ? false : 'Please insert First Name field',
               })}
+              id="firstName"
               defaultValue={currentData?.firstName || ''}
               type="text"
               className="input input-bordered w-full"
@@ -66,13 +66,14 @@ const ContactForm = ({
             )}
           </div>
           <div className="form-control w-full">
-            <label className="label">
-              <span className="label-text">Last name</span>
+            <label htmlFor="lastName" className="label">
+              <span className="label-text">Last Name</span>
             </label>
             <input
               {...register('lastName', {
                 required: isEdit ? false : 'Please insert Last Name field',
               })}
+              id="lastName"
               defaultValue={currentData?.lastName || ''}
               type="text"
               className="input input-bordered w-full"
@@ -86,13 +87,14 @@ const ContactForm = ({
             )}
           </div>
           <div className="form-control w-full">
-            <label className="label">
+            <label htmlFor="age" className="label">
               <span className="label-text">Age</span>
             </label>
             <input
               {...register('age', {
                 required: isEdit ? false : 'Please insert Age field',
               })}
+              id="age"
               defaultValue={currentData?.age}
               type="text"
               className="input input-bordered w-full"
@@ -106,11 +108,12 @@ const ContactForm = ({
             )}
           </div>
           <div className="form-control w-full">
-            <label className="label">
+            <label htmlFor="imgUrl" className="label">
               <span className="label-text">Image URL</span>
             </label>
             <input
               {...register('photo')}
+              id="imgUrl"
               defaultValue={currentData?.photo || ''}
               type="text"
               className="input input-bordered w-full"

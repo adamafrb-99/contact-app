@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { PhoneIcon } from '@heroicons/react/24/solid';
@@ -16,6 +16,8 @@ import Header from './components/Header';
 const Home = () => {
   const dispatch = useAppDispatch();
   const allContacts = useAppSelector((state) => state.allContacts);
+
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
 
   const contactList = useMemo(() => {
     const grouppedContactList = allContacts.reduce((acc, contact) => {
@@ -67,7 +69,7 @@ const Home = () => {
 
   return (
     <div>
-      <Header />
+      <Header onAddButtonClick={() => setIsFormModalOpen(true)} />
 
       {Object.keys(contactList)
         .sort()
@@ -75,7 +77,9 @@ const Home = () => {
           <div key={`${key}-${index}`} className="space-y-1.5 mb-4">
             {/* Alphabet Divider */}
             <div className="px-2 py-1 bg-gray-400 dark:bg-slate-700 rounded-lg">
-              <p className="font-semibold">{key}</p>
+              <p data-testid="alphabetDivider" className="font-semibold">
+                {key}
+              </p>
             </div>
 
             {/* Contacts */}
@@ -101,7 +105,12 @@ const Home = () => {
           </div>
         ))}
 
-      <ContactForm isEdit={false} onFormSubmit={createNewContact} />
+      <ContactForm
+        isEdit={false}
+        isOpen={isFormModalOpen}
+        onFormSubmit={createNewContact}
+        onClose={() => setIsFormModalOpen(false)}
+      />
     </div>
   );
 };
