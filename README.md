@@ -13,6 +13,7 @@ It has light & dark theme, which is automatically applied based on the user's sy
 ### Tech Stack
 The technologies used to build this app are as the following:
 - React
+- Redux
 - Vite
 - TypeScript
 - TailwindCSS
